@@ -1,10 +1,10 @@
 # coding=utf
 
 
-class BotManager(object):
+class KeyManager(object):
     def __new__(cls):
         if not hasattr(cls, '_inst'):
-            cls._inst = super(BotManager, cls).__new__(cls)
+            cls._inst = super(KeyManager, cls).__new__(cls)
         return cls._inst
 
 
