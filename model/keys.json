@@ -1,0 +1,28 @@
+{
+  "game_logic": {
+    "null": {
+      "J4MM3-TWTHW-0IM94": "2"
+    }, 
+    "09090": {
+      "TPDTZ-D7N8B-4CN3Z": "1"
+    }
+  }, 
+  "key_logic": {
+    "TPDTZ-D7N8B-4CN3Z": {
+      "game_id": "09090", 
+      "level": "1"
+    }, 
+    "J4MM3-TWTHW-0IM94": {
+      "game_id": "null", 
+      "level": "2"
+    }
+  }, 
+  "level_logic": {
+    "1": {
+      "TPDTZ-D7N8B-4CN3Z": "09090"
+    }, 
+    "2": {
+      "J4MM3-TWTHW-0IM94": "null"
+    }
+  }
+}

@@ -97,7 +97,7 @@ class CoreController(object):
 
 if __name__ == '__main__':
     cc = CoreController()
-    cc.generator('cmd version')
+    cc.generator('owns marymale0 *')
     print cc.req_list
     print cc.res_list
     # cc.connector('2fa marymale0')
