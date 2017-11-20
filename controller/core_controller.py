@@ -30,6 +30,11 @@ class CoreController(object):
             op_dict = {'1': '2fa', '2': '2faok', '3': '2fano'}
             return ['{} {}'.format(str(op_dict[op]), str(bot_name))]
 
+        def _addkey():
+            the_text, level, game_id = _blueprint.split(' ')[1:4]
+            self.key_controller.add_key_list(the_text, level, game_id)
+            return []
+
         def _addlicense():
             command = list()
             game_id = _blueprint.split(' ')[1]
@@ -51,7 +56,7 @@ class CoreController(object):
             commend = ' '.join(_blueprint.split(' ')[1:])
             return [commend]
 
-        run_dict = {'2fa': _2fa, 'owns': _owns, 'addlicense': _addlicense, 'cmd': _cmd}
+        run_dict = {'2fa': _2fa, 'owns': _owns, 'addkey': _addkey, 'addlicense': _addlicense, 'cmd': _cmd}
         self.req_list = run_dict[_blueprint.split(' ')[0]]()
 
     def receiver(self):
