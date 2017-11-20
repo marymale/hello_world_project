@@ -7,6 +7,12 @@ class View(object):
     def __init__(self):
         self.controller = CoreController()
 
+    def twofa(self, bot_name, op):
+        self.controller.generator('2fa {} {}'.format(bot_name, op))
+
+    def addlicense(self, game_id):
+        self.controller.generator('addlicense {}'.format(game_id))
+
     def update_all_owns(self):
         self.controller.generator('owns')
 
@@ -22,3 +28,4 @@ class View(object):
 if __name__ == '__main__':
     v = View()
     # v.add_keys(pyperclip.paste(), 0, 'null')
+    v.twofa('marymale0', 1)

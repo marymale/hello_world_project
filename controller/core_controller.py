@@ -17,13 +17,6 @@ class CoreController(object):
         self.req_list = None
         self.res_list = None
 
-    def connector(self):
-        self.res_list = list()
-        for text in self.req_list:
-            command = '{}?{}'.format('http://127.0.0.1:1242/IPC', urllib.urlencode({'command': text}))
-            r = requests.post(self.conf['url'], data={'command': command})
-            self.res_list.append(r.text)
-
     def transmitter(self, _blueprint):
         def _2fa():
             bot_name, op = _blueprint.split(' ')[1:3]
@@ -58,6 +51,13 @@ class CoreController(object):
 
         run_dict = {'2fa': _2fa, 'owns': _owns, 'addkey': _addkey, 'addlicense': _addlicense, 'cmd': _cmd}
         self.req_list = run_dict[_blueprint.split(' ')[0]]()
+
+    def connector(self):
+        self.res_list = list()
+        for text in self.req_list:
+            command = '{}?{}'.format('http://127.0.0.1:1242/IPC', urllib.urlencode({'command': text}))
+            r = requests.post(self.conf['url'], data={'command': command})
+            self.res_list.append(r.text)
 
     def receiver(self):
         def _2fa_receiver(the_text):
@@ -101,6 +101,12 @@ class CoreController(object):
         self.res_list = res_list
 
     def executor(self):
+        def _2fa_executor():
+            pass
+
+        def _addlicense_executor():
+            pass
+
         def _owns_executor():
             own_list = [i for i in self.res_list if i['op'] == 'owns']
             bot_name_set = set()
@@ -109,7 +115,9 @@ class CoreController(object):
             for bot_name in list(bot_name_set):
                 self.bot_controller.update_bot_own_list(bot_name, [i for i in own_list if i['bot_name'] == bot_name])
 
-        _owns_executor()
+        exe_list = [_2fa_executor, _addlicense_executor, _owns_executor]
+        for exe in exe_list:
+            exe()
 
     def generator(self, blueprint):
         self.transmitter(blueprint)
