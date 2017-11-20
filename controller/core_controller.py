@@ -4,16 +4,16 @@ import json
 import requests
 import urllib
 from the_project import PROJECT_DIR
-from model.key_manager import KeyManager
-from model.bot_manager import BotManager
+from controller.key_controller import KeyController
+from controller.bot_controller import BotController
 
 
 class CoreController(object):
     def __init__(self):
         with open('{}/controller/conf.json'.format(PROJECT_DIR)) as f:
             self.conf = json.load(f)
-        self.key_manager = KeyManager()
-        self.bot_manager = BotManager()
+        self.key_controller = KeyController()
+        self.bot_controller = BotController()
         self.req_list = None
         self.res_list = None
 
@@ -33,13 +33,19 @@ class CoreController(object):
         def _addlicense():
             command = list()
             game_id = _blueprint.split(' ')[1]
-            for bot_name in self.bot_manager.get_all_bot_name():
+            for bot_name in self.bot_controller.get_all_bot_names():
                 command.append('addlicense {} {}'.format(str(bot_name), str(game_id)))
             return command
 
         def _owns():
-            bot_name, game_id = _blueprint.split(' ')[1:3]
-            return ['owns {} {}'.format(str(bot_name), str(game_id))]
+            if _blueprint != 'owns':
+                bot_name, game_id = _blueprint.split(' ')[1:3]
+                return ['owns {} {}'.format(str(bot_name), str(game_id))]
+            else:
+                command = list()
+                for bot_name in self.bot_controller.get_all_bot_names():
+                    command.append('owns {} *'.format(str(bot_name)))
+                return command
 
         def _cmd():
             commend = ' '.join(_blueprint.split(' ')[1:])
@@ -87,21 +93,35 @@ class CoreController(object):
             for exe in exe_list:
                 exe(each)
 
-        print res_list
+        self.res_list = res_list
+
+    def executor(self):
+        def _owns_executor():
+            own_list = [i for i in self.res_list if i['op'] == 'owns']
+            bot_name_set = set()
+            for i in own_list:
+                bot_name_set.add(i['bot_name'])
+            for bot_name in list(bot_name_set):
+                self.bot_controller.update_bot_own_list(bot_name, [i for i in own_list if i['bot_name'] == bot_name])
+
+        _owns_executor()
 
     def generator(self, blueprint):
         self.transmitter(blueprint)
         self.connector()
         self.receiver()
+        self.executor()
 
 
 if __name__ == '__main__':
     cc = CoreController()
-    cc.generator('owns marymale0 *')
-    print cc.req_list
-    print cc.res_list
-    # cc.connector('2fa marymale0')
-    # print cc.res_text
-    # cc.receiver(res)
-    # cc.bot_manager.get_all_bot_name()
+    cc.generator('owns')
+    for req in cc.req_list:
+        print req
+    for res in cc.res_list:
+        print res
+    # 2fa: 2fa bot_name 1/2/3(2fa,2faok,2fano)
+    # addlicense: addlicense game_id
+    # own: owns(all)/owns bot_name game_id(*)
+    # cmd: origin command
     pass
