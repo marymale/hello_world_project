@@ -1,18 +1,28 @@
 {
   "game_logic": {
     "null": {
-      "J4MM3-TWTHW-0IM94": "2"
+      "7I7BW-H436D-XNP5G": "2", 
+      "3R67F-TFPED-0AVAV": "2", 
+      "TMNMA-I64KZ-D685W": "2"
     }, 
     "09090": {
       "TPDTZ-D7N8B-4CN3Z": "1"
     }
   }, 
   "key_logic": {
+    "7I7BW-H436D-XNP5G": {
+      "game_id": "null", 
+      "level": "2"
+    }, 
+    "3R67F-TFPED-0AVAV": {
+      "game_id": "null", 
+      "level": "2"
+    }, 
     "TPDTZ-D7N8B-4CN3Z": {
       "game_id": "09090", 
       "level": "1"
     }, 
-    "J4MM3-TWTHW-0IM94": {
+    "TMNMA-I64KZ-D685W": {
       "game_id": "null", 
       "level": "2"
     }
@@ -22,7 +32,9 @@
       "TPDTZ-D7N8B-4CN3Z": "09090"
     }, 
     "2": {
-      "J4MM3-TWTHW-0IM94": "null"
+      "7I7BW-H436D-XNP5G": "null", 
+      "3R67F-TFPED-0AVAV": "null", 
+      "TMNMA-I64KZ-D685W": "null"
     }
   }
 }
