@@ -9,21 +9,23 @@ class KeyManager(object):
     def __new__(cls):
         if not hasattr(cls, '_inst'):
             cls._inst = super(KeyManager, cls).__new__(cls)
-        try:
-            with open('{}/model/keys.json'.format(PROJECT_DIR)) as f:
-                cls.database = json.load(f)
-        except ValueError:
-            cls.database = dict()
         return cls._inst
 
-    @classmethod
-    def del_database(cls):
-        cls.database = dict()
-        with open('{}/model/keys.json'.format(PROJECT_DIR), 'w+') as f:
-            json.dump(cls.database, f, indent=2)
+    def __init__(self):
+        self.database_name = '{}/model/keys.json'.format(PROJECT_DIR)
+        try:
+            with open(self.database_name) as f:
+                self.database = json.load(f)
+        except ValueError:
+            self.database = dict()
+
+    def del_database(self):
+        self.database = dict()
+        with open(self.database_name, 'w+') as f:
+            json.dump(self.database, f, indent=2)
 
     def storage_database(self):
-        with open('{}/model/keys.json'.format(PROJECT_DIR), 'w+') as f:
+        with open(self.database_name, 'w+') as f:
             json.dump(self.database, f, indent=2)
 
     @staticmethod
@@ -31,7 +33,7 @@ class KeyManager(object):
         arr, temp = [], keys.strip().split()
         for each in temp:
             arr.extend(each.split(','))
-        _key = [each for each in arr if re.match(r'.....-.....-.....', each) is not None]
+        _key = [each for each in arr if re.match(r'.{5}-.{5}-.{5}', each) is not None]
         res = ','.join(_key)
         print 'key num: ', len(_key)
         print 'key    : ', res
