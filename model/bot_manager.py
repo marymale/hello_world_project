@@ -24,7 +24,7 @@ class BotManager(object):
     def add_bot(self):
         pass
 
-    def update_bot(self):
+    def update_bot(self, bot_name, bot_dict):
         pass
 
     def get_bot(self):

@@ -18,6 +18,9 @@ class KeyManager(object):
                 self.database = json.load(f)
         except ValueError:
             self.database = dict()
+        self.database.setdefault('key_logic', dict())
+        self.database.setdefault('level_logic', dict())
+        self.database.setdefault('game_logic', dict())
 
     def del_database(self):
         self.database = dict()
@@ -39,20 +42,18 @@ class KeyManager(object):
         print 'key    : ', res
         return _key
 
-    def add_key(self, the_text, level, game_id):
+    def add_key(self, key, level, game_id):
         level, game_id = str(level), str(game_id)
-        self.database.setdefault('key_logic', dict())
-        self.database.setdefault('level_logic', dict())
-        self.database.setdefault('game_logic', dict())
-        key_list = self.detection_key(the_text)
-        for k in key_list:
-            if self.database['key_logic'].get(k) is None:
-                self.database['key_logic'].setdefault(k, {'level': level, 'game_id': game_id})
-                self.database['level_logic'].setdefault(level, dict())
-                self.database['level_logic'][level].setdefault(k, game_id)
-                self.database['game_logic'].setdefault(game_id, dict())
-                self.database['game_logic'][game_id].setdefault(k, level)
-        self.storage_database()
+        op = False
+        if self.database['key_logic'].get(key) is None:
+            self.database['key_logic'].setdefault(key, {'level': level, 'game_id': game_id})
+            self.database['level_logic'].setdefault(level, dict())
+            self.database['level_logic'][level].setdefault(key, game_id)
+            self.database['game_logic'].setdefault(game_id, dict())
+            self.database['game_logic'][game_id].setdefault(key, level)
+            self.storage_database()
+            op = True
+        return op
 
     def del_key(self, key):
         op = False
