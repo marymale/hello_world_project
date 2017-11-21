@@ -42,6 +42,10 @@ class CoreController(object):
             commend = ' '.join(_blueprint.split(' ')[1:])
             return [commend]
 
+        # 暂时不需要
+        def _loot():
+            pass
+
         def _owns():
             if _blueprint != 'owns':
                 bot_name, game_id = _blueprint.split(' ')[1:3]
@@ -60,7 +64,7 @@ class CoreController(object):
             sg_redeem = [i for i in redeem_list if i['level'] == '1' or i['game_id'] != 'null']
             ad_redeem_command = 'r^ FD {}'.format(','.join([i['key'] for i in ad_redeem]))
             command.append(ad_redeem_command)
-            return []
+            return command
 
         run_dict = {'2fa': _2fa, 'owns': _owns, 'addkey': _addkey, 'addlicense': _addlicense, 'redeem': _redeem,
                     'cmd': _cmd}
@@ -98,7 +102,7 @@ class CoreController(object):
             if re.match(pattern, the_text) is not None:
                 match = re.findall(pattern, the_text)
                 for i in match:
-                    item = {'op': 'addlicense', 'bot_name': i[0], 'game_id': i[1], 'status': i[2]}
+                    item = {'op': 'addlicense', 'bot_name': i[0], 'game_id': i[1], 'status': i[2], 'game_name': i[3]}
                     res_list.append(item)
                 op = True
             return op
@@ -152,7 +156,7 @@ class CoreController(object):
         # _cmd_receiver保持在最后
         exe_list = [_2fa_receiver, _owns_receiver, _addlicense_receiver, _redeem_receiver, _cmd_receiver]
         # DEBUG
-        self.res_list = [pyperclip.paste()]
+        # self.res_list = [pyperclip.paste()]
         for text in self.res_list:
             res_text_list.extend(text.split('\n'))
         for each in res_text_list:
@@ -172,23 +176,30 @@ class CoreController(object):
                 print '{}:success'.format(i['bot_name'])
 
         def _addlicense_executor():
-            pass
+            redeem_list = [i for i in self.res_list if i['op'] == 'addlicense']
+            for i in redeem_list:
+                self.bot_controller.add_bot_own(i['bot_name'], i['game_id'], i['game_name'])
+                print 'Addlicense:{}-{}-[{}]'.format(i['bot_name'], i['game_id'], i['game_name'])
 
         def _redeem_executor():
             redeem_list = [i for i in self.res_list if i['op'] == 'r_OK']
             for i in redeem_list:
                 self.key_controller.del_key_by_key(i['key'])
                 self.bot_controller.add_bot_own(i['bot_name'], i['game_id'], i['game_name'])
+                self.bot_controller.update_bot_available(i['bot_name'], 'Y')
+                print 'OK:{}-{}-[{}]'.format(i['bot_name'], i['game_id'], i['game_name'])
 
             redeem_list = [i for i in self.res_list if i['op'] == 'r_AlreadyPurchased']
             for i in redeem_list:
                 self.key_controller.update_key(i['key'], 2, i['game_id'])
+                self.bot_controller.update_bot_available(i['bot_name'], 'Y')
 
             redeem_list = [i for i in self.res_list if i['op'] == 'r_DoesNotOwnRequiredApp']
             for i in redeem_list:
                 level = self.key_controller.get_key_detail(i['key'])['level']
                 self.key_controller.update_key(i['key'], level, i['game_id'])
-                print 'DoesNotOwnRequiredApp:{}-{}'.format(i['bot_name'], i['game_id'])
+                self.bot_controller.update_bot_available(i['bot_name'], 'Y')
+                print 'DoesNotOwnRequiredApp:{}-{}-[{}]'.format(i['bot_name'], i['game_id'], i['game_name'])
 
         def _owns_executor():
             own_list = [i for i in self.res_list if i['op'] == 'owns']

@@ -1,4 +1,6 @@
 # coding=utf-8
+import datetime
+from the_project import TIME_FMT
 from model.bot_manager import BotManager
 
 
@@ -21,5 +23,14 @@ class BotController(object):
 
     def add_bot_own(self, bot_name, game_id, game_name):
         bot_dict = self.bot_manager.get_bot(bot_name)
+        bot_dict.setdefault('owns', dict())
         bot_dict['owns'].setdefault(game_id, game_name)
+        return self.bot_manager.update_bot(bot_name, bot_dict)
+
+    def update_bot_available(self, bot_name, state):
+        bot_dict = self.bot_manager.get_bot(bot_name)
+        bot_dict.setdefault('state', state)
+        bot_dict['state'] = state
+        bot_dict.setdefault('last_time', datetime.datetime.now().strftime(TIME_FMT))
+        bot_dict['last_time'] = datetime.datetime.now().strftime(TIME_FMT)
         return self.bot_manager.update_bot(bot_name, bot_dict)
