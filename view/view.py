@@ -13,6 +13,9 @@ class View(object):
     def addlicense(self, game_id):
         self.controller.generator('addlicense {}'.format(game_id))
 
+    def cmd(self, command):
+        self.controller.generator('cmd {}'.format(command))
+
     def update_all_owns(self):
         self.controller.generator('owns')
 
@@ -24,8 +27,12 @@ class View(object):
         key_text = key_text.replace(' ', ',')
         self.controller.generator('addkey {} {} {}'.format(key_text, level, game_id))
 
+    def advance_redeem(self):
+        self.controller.generator('redeem')
+
 
 if __name__ == '__main__':
     v = View()
     # v.add_keys(pyperclip.paste(), 0, 'null')
     v.twofa('marymale0', 1)
+    v.cmd('version')
