@@ -25,7 +25,10 @@ class KeyController(object):
             self.key_manager.add_key(key, level, game_id)
 
     def get_need_redeem_list(self):
-        return self.key_manager.get_game_id('null')
+        res_list = self.key_manager.get_level('1')
+        for game_id in self.key_manager.get_all_game_id():
+            print game_id
+        return res_list
 
     def get_key_detail(self, key):
         return self.key_manager.get_key(key)[0]

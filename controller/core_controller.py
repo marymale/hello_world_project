@@ -64,7 +64,7 @@ class CoreController(object):
             sg_redeem = [i for i in redeem_list if i['level'] == '1' or i['game_id'] != 'null']
             ad_redeem_command = 'r^ FD {}'.format(','.join([i['key'] for i in ad_redeem]))
             command.append(ad_redeem_command)
-            return command
+            return []
 
         run_dict = {'2fa': _2fa, 'owns': _owns, 'addkey': _addkey, 'addlicense': _addlicense, 'redeem': _redeem,
                     'cmd': _cmd}
