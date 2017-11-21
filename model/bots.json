@@ -6049,7 +6049,7 @@
     }
   }, 
   "marymale": {
-    "bot_level": 0, 
+    "bot_level": 1,
     "owns": {
       "318600": "The Flame in the Flood", 
       "324400": "Pocket God vs Desert Ashes", 
@@ -17555,7 +17555,7 @@
     }
   }, 
   "marysctggmale": {
-    "bot_level": 1, 
+    "bot_level": 2,
     "owns": {
       "502910": "The Return Home", 
       "498320": "Trolley Gold", 
@@ -17870,7 +17870,7 @@
     }
   }, 
   "marysctgg": {
-    "bot_level": 1, 
+    "bot_level": 2,
     "owns": {
       "502910": "The Return Home", 
       "339130": "Morningstar: Descent to Deadrock", 
@@ -19481,7 +19481,7 @@
     }
   }, 
   "marymalesctgg": {
-    "bot_level": 1, 
+    "bot_level": 2,
     "owns": {
       "502910": "The Return Home", 
       "204180": "Waveform", 
