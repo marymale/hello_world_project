@@ -24,14 +24,14 @@ class KeyController(object):
         for key in key_list:
             self.key_manager.add_key(key, level, game_id)
 
-if __name__ == '__main__':
-    kc = KeyController()
-    text = 'TPDTZ-D7N8B-4CN3Z, J4MM3-TWTHW-0IM94, TMNMA-I64KZ-D685W, 3R67F-TFPED-0AVAV, 7I7BW-H436D-XNP5G,'
-    kc.key_manager.del_database()
-    kc.add_key_list(text, 2, 'null')
-    kc.key_manager.del_key('J4MM3-TWTHW-0IM94')
-    kc.key_manager.update_key('TPDTZ-D7N8B-4CN3Z', 1, '09090')
-    print kc.key_manager.get_key('TPDTZ-D7N8B-4CN3Z')
-    print kc.key_manager.get_level(2)
-    print kc.key_manager.get_game_id('09090')
-    pass
+    def get_need_redeem_list(self):
+        return self.key_manager.get_game_id('null')
+
+    def get_key_detail(self, key):
+        return self.key_manager.get_key(key)[0]
+
+    def update_key(self, key, level, game_id):
+        return self.key_manager.update_key(key, level, game_id)
+
+    def del_key_by_key(self, key):
+        return self.key_manager.del_key(key)

@@ -1,8 +1,10 @@
 # coding=utf-8
 import re
 import json
-import requests
 import urllib
+import datetime
+import requests
+import pyperclip
 from the_project import PROJECT_DIR
 from controller.key_controller import KeyController
 from controller.bot_controller import BotController
@@ -51,8 +53,13 @@ class CoreController(object):
                 return command
 
         def _redeem():
-            def level_redeem():
-                pass
+            command = []
+            redeem_list = self.key_controller.get_need_redeem_list()
+            ad_redeem = [i for i in redeem_list if i['level'] == '2' and i['game_id'] == 'null'][
+                        :len(self.bot_controller.get_all_bot_names())]
+            sg_redeem = [i for i in redeem_list if i['level'] == '1' or i['game_id'] != 'null']
+            ad_redeem_command = 'r^ FD {}'.format(','.join([i['key'] for i in ad_redeem]))
+            command.append(ad_redeem_command)
             return []
 
         run_dict = {'2fa': _2fa, 'owns': _owns, 'addkey': _addkey, 'addlicense': _addlicense, 'redeem': _redeem,
@@ -86,8 +93,8 @@ class CoreController(object):
             return op
 
         def _addlicense_receiver(the_text):
-            pattern = r'<(.+?)> ID: (.+?) \| Status: (.+?) \| Items: (.+?)\r$'
             op = False
+            pattern = r'<(.+?)> ID: (.+?) \| Status: (.+?) \| Items: (.+?)\r$'
             if re.match(pattern, the_text) is not None:
                 match = re.findall(pattern, the_text)
                 for i in match:
@@ -97,11 +104,38 @@ class CoreController(object):
             return op
 
         def _cmd_receiver(the_text):
-            if the_text.strip('\r') != '':
+            if the_text.strip('\r') not in ['', '<br />']:
                 item = {'op': 'cmd', 'text': the_text}
                 res_list.append(item)
                 return True
             return False
+
+        def _redeem_receiver(the_text):
+            op = False
+            pattern = r'^<(.+?)> Key: (.{5}-.{5}-.{5}?) \| Status: Fail/AlreadyPurchased \| Items: \[(.+?), (.+?)\]\r$'
+            if re.match(pattern, the_text) is not None:
+                match = re.findall(pattern, the_text)
+                for i in match:
+                    item = {'op': 'r_AlreadyPurchased', 'bot_name': i[0], 'key': i[1], 'game_id': i[2], 'game_name': i[3]}
+                    res_list.append(item)
+                op = True
+
+            pattern = r'^<(.+?)> Key: (.{5}-.{5}-.{5}?) \| Status: OK/NoDetail \| Items: \[(.+?), (.+?)\]\r$'
+            if re.match(pattern, the_text) is not None:
+                match = re.findall(pattern, the_text)
+                for i in match:
+                    item = {'op': 'r_OK', 'bot_name': i[0], 'key': i[1], 'game_id': i[2], 'game_name': i[3]}
+                    res_list.append(item)
+                op = True
+
+            pattern = r'^<(.+?)> Key: (.{5}-.{5}-.{5}?) \| Status: Fail/DoesNotOwnRequiredApp \| Items: \[(.+?), (.+?)\]\r$'
+            if re.match(pattern, the_text) is not None:
+                match = re.findall(pattern, the_text)
+                for i in match:
+                    item = {'op': 'r_DoesNotOwnRequiredApp', 'bot_name': i[0], 'key': i[1], 'game_id': i[2], 'game_name': i[3]}
+                    res_list.append(item)
+                op = True
+            return op
 
         def _owns_receiver(the_text):
             op = False
@@ -116,7 +150,9 @@ class CoreController(object):
 
         res_list, res_text_list = list(), list()
         # _cmd_receiver保持在最后
-        exe_list = [_2fa_receiver, _owns_receiver, _addlicense_receiver, _cmd_receiver]
+        exe_list = [_2fa_receiver, _owns_receiver, _addlicense_receiver, _redeem_receiver, _cmd_receiver]
+        # DEBUG
+        self.res_list = [pyperclip.paste()]
         for text in self.res_list:
             res_text_list.extend(text.split('\n'))
         for each in res_text_list:
@@ -138,6 +174,22 @@ class CoreController(object):
         def _addlicense_executor():
             pass
 
+        def _redeem_executor():
+            redeem_list = [i for i in self.res_list if i['op'] == 'r_OK']
+            for i in redeem_list:
+                self.key_controller.del_key_by_key(i['key'])
+                self.bot_controller.add_bot_own(i['bot_name'], i['game_id'], i['game_name'])
+
+            redeem_list = [i for i in self.res_list if i['op'] == 'r_AlreadyPurchased']
+            for i in redeem_list:
+                self.key_controller.update_key(i['key'], 2, i['game_id'])
+
+            redeem_list = [i for i in self.res_list if i['op'] == 'r_DoesNotOwnRequiredApp']
+            for i in redeem_list:
+                level = self.key_controller.get_key_detail(i['key'])['level']
+                self.key_controller.update_key(i['key'], level, i['game_id'])
+                print 'DoesNotOwnRequiredApp:{}-{}'.format(i['bot_name'], i['game_id'])
+
         def _owns_executor():
             own_list = [i for i in self.res_list if i['op'] == 'owns']
             bot_name_set = set()
@@ -151,7 +203,7 @@ class CoreController(object):
             for i in the_list:
                 print i['text']
 
-        exe_list = [_2fa_executor, _addlicense_executor, _owns_executor, _cmd_executor]
+        exe_list = [_2fa_executor, _addlicense_executor, _owns_executor, _redeem_executor, _cmd_executor]
         for exe in exe_list:
             exe()
 

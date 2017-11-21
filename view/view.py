@@ -22,7 +22,7 @@ class View(object):
     def update_bot_owns(self, bot_name):
         self.controller.generator('owns {} *'.format(bot_name))
 
-    def add_keys(self, key_text, level, game_id):
+    def add_keys(self, key_text, level, game_id='null'):
         key_text = key_text.replace('\n', ',')
         key_text = key_text.replace(' ', ',')
         self.controller.generator('addkey {} {} {}'.format(key_text, level, game_id))
@@ -33,6 +33,7 @@ class View(object):
 
 if __name__ == '__main__':
     v = View()
-    # v.add_keys(pyperclip.paste(), 2, 'null')
-    v.twofa('marymale0', 1)
-    v.cmd('version')
+    # v.add_keys(pyperclip.paste(), 2)
+    # v.twofa('marymale0', 1)
+    # v.cmd('version')
+    v.advance_redeem()
