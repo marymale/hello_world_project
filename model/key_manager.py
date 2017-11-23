@@ -85,3 +85,7 @@ class KeyManager(object):
 
     def get_all_game_id(self):
         return self.database['game_logic'].keys()
+
+if __name__ == '__main__':
+    km = KeyManager()
+    pass

@@ -41,3 +41,6 @@ class BotController(object):
             if self.bot_manager.get_bot(bot)['owns'].get(game_id) is None:
                 res_list.append(bot)
         return res_list
+if __name__ == '__main__':
+    bc = BotController()
+    pass

@@ -22,10 +22,10 @@ class View(object):
     def update_bot_owns(self, bot_name):
         self.controller.generator('owns {} *'.format(bot_name))
 
-    def add_keys(self, key_text, level, game_id='null'):
+    def add_keys(self, key_text, level, game_id='null', game_name='null'):
         key_text = key_text.replace('\n', ',')
         key_text = key_text.replace(' ', ',')
-        self.controller.generator('addkey {} {} {}'.format(key_text, level, game_id))
+        self.controller.generator('addkey {} {} {} {}'.format(key_text, level, game_id, game_name))
 
     def advance_redeem(self):
         self.controller.generator('redeem')
@@ -34,8 +34,9 @@ class View(object):
 if __name__ == '__main__':
     v = View()
     # v.addlicense('545820')
-    # v.add_keys(pyperclip.paste(), 1)
+    # v.add_keys(pyperclip.paste(), 2)
     # v.twofa('marysctggmale', 2)
     # v.twofa('marymalesctgg', 2)
     # v.cmd('version')
     v.advance_redeem()
+    pass

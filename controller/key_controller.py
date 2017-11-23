@@ -12,16 +12,19 @@ class KeyController(object):
         arr, temp = [], keys.strip().split()
         for each in temp:
             arr.extend(each.split(','))
-        _key = [each for each in arr if re.match(r'.{5}-.{5}-.{5}', each) is not None]
-        res = ','.join(_key)
+        _key = []
+        pattern = r'.*(.{5}-.{5}-.{5}?).*'
+        for each in arr:
+            if re.match(pattern, each) is not None:
+                _key.append(re.findall(pattern, each)[0])
         print 'key num: ', len(_key)
-        print 'key    : ', res
+        print 'key    : ', ','.join(_key)
         return _key
 
-    def add_key_list(self, the_text, level, game_id):
+    def add_key_list(self, the_text, level, game_id, game_name):
         key_list = self.detection_key(the_text)
         for key in key_list:
-            self.key_manager.add_key(key, level, game_id)
+            self.key_manager.add_key(key, level, game_id, game_name)
 
     def get_need_redeem_list(self):
         game_id = self.key_manager.get_all_game_id()
@@ -49,5 +52,5 @@ class KeyController(object):
 
 if __name__ == '__main__':
     kc = KeyController()
-    # kc.update_key('F3HJN-Q2EMA-M6LE9', 1, 34286)
+    # kc.update_key('F3HJN-Q2EMA-M6LE9', 1, 'null', 'null')
     pass

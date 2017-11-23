@@ -28,8 +28,8 @@ class CoreController(object):
 
         # addkey不需要上传命令，返回空指令，因此也没有receiver和executor
         def _addkey():
-            the_text, level, game_id = _blueprint.split(' ')[1:4]
-            self.key_controller.add_key_list(the_text, level, game_id)
+            the_text, level, game_id, game_name = _blueprint.split(' ')[1:5]
+            self.key_controller.add_key_list(the_text, level, game_id, game_name)
             return []
 
         def _addlicense():
@@ -58,26 +58,23 @@ class CoreController(object):
                 return command
 
         def _redeem():
-            # command = []
-            # game_id_owns_list = self.key_controller.get_all_game_id()
-            # need_list = { for i in game_id_owns_list}
+            command = []
             redeem_list = self.key_controller.get_need_redeem_list()
             for i in redeem_list:
                 if i[0]['level'] == '2':
                     if i[0]['game_id'] == 'null':
-                        pass
+                        command.append('r^ FD {}'.format(','.join([j['key'] for j in i])))
                     else:
                         need_bots = self.bot_controller.get_bot_needs(i[0]['game_id'])
                         random.shuffle(need_bots)
                         redeem_bots = need_bots[:min(len(need_bots), len(i))]
-                        print redeem_bots
-                print i
-            # ad_redeem = [i for i in redeem_list if i['level'] == '2' and i['game_id'] == 'null'][
-            #             :len(self.bot_controller.get_all_bot_names())]
-            # sg_redeem = [i for i in redeem_list if i['level'] == '1' or i['game_id'] != 'null']
-            # ad_redeem_command = 'r^ FD {}'.format(','.join([i['key'] for i in ad_redeem]))
-            # command.append(ad_redeem_command)
-            return []
+                        for j in range(len(redeem_bots)):
+                            command.append('r {} {}'.format(redeem_bots[j], i[j]['key']))
+                elif i[0]['level'] == '1':
+                    for j in i:
+                        command.append('r marymale {}'.format(j['key']))
+            print command
+            return command
 
         run_dict = {'2fa': _2fa, 'owns': _owns, 'addkey': _addkey, 'addlicense': _addlicense, 'redeem': _redeem,
                     'cmd': _cmd}
@@ -152,6 +149,16 @@ class CoreController(object):
                     item = {'op': 'r_DoesNotOwnRequiredApp', 'bot_name': i[0], 'key': i[1], 'game_id': i[2], 'game_name': i[3]}
                     res_list.append(item)
                 op = True
+
+            pattern = r'^<(.+?)> Key: (.{5}-.{5}-.{5}?) \| Status: Fail/DuplicateActivationCode \| Items: \[(.+?), (.+?)\]\r$'
+            if re.match(pattern, the_text) is not None:
+                match = re.findall(pattern, the_text)
+                for i in match:
+                    item = {'op': 'r_DuplicateActivationCode', 'bot_name': i[0], 'key': i[1], 'game_id': i[2],
+                            'game_name': i[3]}
+                    res_list.append(item)
+                op = True
+
             return op
 
         def _owns_receiver(the_text):
@@ -207,6 +214,11 @@ class CoreController(object):
                 self.key_controller.update_key(i['key'], 2, i['game_id'], i['game_name'])
                 self.bot_controller.update_bot_available(i['bot_name'], 'Y')
 
+            redeem_list = [i for i in self.res_list if i['op'] == 'r_DuplicateActivationCode']
+            for i in redeem_list:
+                self.key_controller.del_key_by_key(i['key'])
+                self.bot_controller.update_bot_available(i['bot_name'], 'Y')
+
             redeem_list = [i for i in self.res_list if i['op'] == 'r_DoesNotOwnRequiredApp']
             for i in redeem_list:
                 level = self.key_controller.get_key_detail(i['key'])['level']
@@ -239,15 +251,5 @@ class CoreController(object):
 
 
 if __name__ == '__main__':
-    # cc = CoreController()
-    # cc.generator('owns')
-    # for req in cc.req_list:
-    #     print req
-    # for res in cc.res_list:
-    #     print res
-
-    # 2fa: 2fa bot_name 1/2/3(2fa,2faok,2fano)
-    # addlicense: addlicense game_id
-    # own: owns(all)/owns bot_name game_id(*)
-    # cmd: origin command
+    cc = CoreController()
     pass

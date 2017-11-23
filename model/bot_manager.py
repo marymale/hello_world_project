@@ -56,3 +56,7 @@ class BotManager(object):
 
     def get_all_bot_names(self):
         return self.database.keys()
+
+if __name__ == '__main__':
+    bm = BotManager()
+    pass
