@@ -34,3 +34,10 @@ class BotController(object):
         bot_dict.setdefault('last_time', datetime.datetime.now().strftime(TIME_FMT))
         bot_dict['last_time'] = datetime.datetime.now().strftime(TIME_FMT)
         return self.bot_manager.update_bot(bot_name, bot_dict)
+
+    def get_bot_needs(self, game_id):
+        res_list = []
+        for bot in self.get_all_bot_names():
+            if self.bot_manager.get_bot(bot)['owns'].get(game_id) is None:
+                res_list.append(bot)
+        return res_list

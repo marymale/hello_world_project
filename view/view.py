@@ -34,7 +34,8 @@ class View(object):
 if __name__ == '__main__':
     v = View()
     # v.addlicense('545820')
-    # v.add_keys(pyperclip.paste(), 2)
-    # v.twofa('marymale0', 1)
+    # v.add_keys(pyperclip.paste(), 1)
+    # v.twofa('marysctggmale', 2)
+    # v.twofa('marymalesctgg', 2)
     # v.cmd('version')
     v.advance_redeem()

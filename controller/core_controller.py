@@ -2,6 +2,7 @@
 import re
 import json
 import urllib
+import random
 import datetime
 import requests
 import pyperclip
@@ -57,13 +58,25 @@ class CoreController(object):
                 return command
 
         def _redeem():
-            command = []
+            # command = []
+            # game_id_owns_list = self.key_controller.get_all_game_id()
+            # need_list = { for i in game_id_owns_list}
             redeem_list = self.key_controller.get_need_redeem_list()
-            ad_redeem = [i for i in redeem_list if i['level'] == '2' and i['game_id'] == 'null'][
-                        :len(self.bot_controller.get_all_bot_names())]
-            sg_redeem = [i for i in redeem_list if i['level'] == '1' or i['game_id'] != 'null']
-            ad_redeem_command = 'r^ FD {}'.format(','.join([i['key'] for i in ad_redeem]))
-            command.append(ad_redeem_command)
+            for i in redeem_list:
+                if i[0]['level'] == '2':
+                    if i[0]['game_id'] == 'null':
+                        pass
+                    else:
+                        need_bots = self.bot_controller.get_bot_needs(i[0]['game_id'])
+                        random.shuffle(need_bots)
+                        redeem_bots = need_bots[:min(len(need_bots), len(i))]
+                        print redeem_bots
+                print i
+            # ad_redeem = [i for i in redeem_list if i['level'] == '2' and i['game_id'] == 'null'][
+            #             :len(self.bot_controller.get_all_bot_names())]
+            # sg_redeem = [i for i in redeem_list if i['level'] == '1' or i['game_id'] != 'null']
+            # ad_redeem_command = 'r^ FD {}'.format(','.join([i['key'] for i in ad_redeem]))
+            # command.append(ad_redeem_command)
             return []
 
         run_dict = {'2fa': _2fa, 'owns': _owns, 'addkey': _addkey, 'addlicense': _addlicense, 'redeem': _redeem,
@@ -191,13 +204,13 @@ class CoreController(object):
 
             redeem_list = [i for i in self.res_list if i['op'] == 'r_AlreadyPurchased']
             for i in redeem_list:
-                self.key_controller.update_key(i['key'], 2, i['game_id'])
+                self.key_controller.update_key(i['key'], 2, i['game_id'], i['game_name'])
                 self.bot_controller.update_bot_available(i['bot_name'], 'Y')
 
             redeem_list = [i for i in self.res_list if i['op'] == 'r_DoesNotOwnRequiredApp']
             for i in redeem_list:
                 level = self.key_controller.get_key_detail(i['key'])['level']
-                self.key_controller.update_key(i['key'], level, i['game_id'])
+                self.key_controller.update_key(i['key'], level, i['game_id'], i['game_name'])
                 self.bot_controller.update_bot_available(i['bot_name'], 'Y')
                 print 'DoesNotOwnRequiredApp:{}-{}-[{}]'.format(i['bot_name'], i['game_id'], i['game_name'])
 

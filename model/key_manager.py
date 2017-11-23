@@ -32,11 +32,11 @@ class KeyManager(object):
         with open(self.database_name, 'w+') as f:
             json.dump(self.database, f, indent=2)
 
-    def add_key(self, key, level, game_id):
+    def add_key(self, key, level, game_id, game_name):
         level, game_id = str(level), str(game_id)
         op = False
         if self.database['key_logic'].get(key) is None:
-            self.database['key_logic'].setdefault(key, {'level': level, 'game_id': game_id})
+            self.database['key_logic'].setdefault(key, {'level': level, 'game_id': game_id, 'game_name': game_name})
             self.database['level_logic'].setdefault(level, dict())
             self.database['level_logic'][level].setdefault(key, game_id)
             self.database['game_logic'].setdefault(game_id, dict())
@@ -55,11 +55,11 @@ class KeyManager(object):
             op = True
         return op
 
-    def update_key(self, key, level, game_id):
+    def update_key(self, key, level, game_id, game_name):
         level, game_id = str(level), str(game_id)
         op = False
         if self.del_key(key):
-            if self.add_key(key, level, game_id):
+            if self.add_key(key, level, game_id, game_name):
                 op = True
         return op
 

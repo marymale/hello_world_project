@@ -16,6 +16,11 @@ class BotManager(object):
                 self.database = json.load(f)
         except ValueError:
             self.database = dict()
+        for bot in self.database.keys():
+            self.database[bot].setdefault('owns', dict())
+            self.database[bot].setdefault('last_time', '2017-11-11 11:11:11')
+            self.database[bot].setdefault('bot_level', 2)
+            self.database[bot].setdefault('state', 'Y')
 
     def storage_database(self):
         with open(self.database_name, 'w+') as f:
@@ -51,14 +56,3 @@ class BotManager(object):
 
     def get_all_bot_names(self):
         return self.database.keys()
-
-
-if __name__ == '__main__':
-    bm = BotManager()
-    bm.add_bot('asd', {'a': "k"})
-    print bm.get_bot('asd')
-    bm.update_bot('asd', {'a': 'asd'})
-    print bm.get_bot('asd')
-    bm.del_bot('asd')
-    print bm.get_bot('asd')
-    print bm.get_all_bot_names()
