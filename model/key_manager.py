@@ -66,25 +66,29 @@ class KeyManager(object):
     def get_key(self, key):
         if self.database['key_logic'].get(key) is not None:
             return [{'key': key, 'level': self.database['key_logic'][key]['level'],
-                    'game_id': self.database['key_logic'][key]['game_id']}]
+                     'game_id': self.database['key_logic'][key]['game_id'],
+                     'game_name': self.database['key_logic'][key]['game_name']}]
         return []
 
     def get_level(self, level):
         level = str(level)
         if self.database['level_logic'].get(level) is not None:
-            return [{'key': i, 'level': level, 'game_id': self.database['level_logic'][level][i]} for i in
+            return [{'key': i, 'level': level, 'game_id': self.database['level_logic'][level][i],
+                     'game_name': self.database['key_logic'][i]['game_name']} for i in
                     self.database['level_logic'][level].keys()]
         return []
 
     def get_game_id(self, game_id):
         game_id = str(game_id)
         if self.database['game_logic'].get(game_id) is not None:
-            return [{'key': i, 'level': self.database['game_logic'][game_id][i], 'game_id': game_id} for i in
+            return [{'key': i, 'level': self.database['game_logic'][game_id][i], 'game_id': game_id,
+                     'game_name': self.database['key_logic'][i]['game_name']} for i in
                     self.database['game_logic'][game_id].keys()]
         return []
 
     def get_all_game_id(self):
         return self.database['game_logic'].keys()
+
 
 if __name__ == '__main__':
     km = KeyManager()

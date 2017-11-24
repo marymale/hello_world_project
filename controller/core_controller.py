@@ -3,9 +3,7 @@ import re
 import json
 import urllib
 import random
-import datetime
 import requests
-import pyperclip
 from the_project import PROJECT_DIR
 from controller.key_controller import KeyController
 from controller.bot_controller import BotController
@@ -63,21 +61,36 @@ class CoreController(object):
             for i in redeem_list:
                 if i[0]['level'] == '2':
                     if i[0]['game_id'] == 'null':
-                        command.append('r^ FD {}'.format(','.join([j['key'] for j in i])))
+                        if len(i) > 200:
+                            command.append('r^ FD {}'.format(','.join([j['key'] for j in i][:500])))
+                        else:
+                            command.append('r^ FD {}'.format(','.join([j['key'] for j in i])))
                     else:
-                        need_bots = self.bot_controller.get_bot_needs(i[0]['game_id'])
+                        need_bots = self.bot_controller.get_bot_needs('game_name', i[0]['game_name'])
                         random.shuffle(need_bots)
                         redeem_bots = need_bots[:min(len(need_bots), len(i))]
                         for j in range(len(redeem_bots)):
                             command.append('r {} {}'.format(redeem_bots[j], i[j]['key']))
+                        if len(redeem_bots) > 0:
+                            print i[0]['game_name'], i[0]['game_id']
                 elif i[0]['level'] == '1':
                     for j in i:
                         command.append('r marymale {}'.format(j['key']))
-            print command
+            print len(command)
             return command
 
+        def _restart():
+            bot_name = _blueprint.split(' ')[1]
+            return ['stop {}'.format(bot_name), 'start {}'.format(bot_name)]
+
+        def _need():
+            game_id = _blueprint.split(' ')[1]
+            need_bots = self.bot_controller.get_bot_needs('game_id', game_id)
+            print len(need_bots)
+            return []
+
         run_dict = {'2fa': _2fa, 'owns': _owns, 'addkey': _addkey, 'addlicense': _addlicense, 'redeem': _redeem,
-                    'cmd': _cmd}
+                    'cmd': _cmd, 'need': _need, 'restart': _restart}
         self.req_list = run_dict[_blueprint.split(' ')[0]]()
 
     def connector(self):
@@ -118,7 +131,8 @@ class CoreController(object):
             return op
 
         def _cmd_receiver(the_text):
-            if the_text.strip('\r') not in ['', '<br />']:
+            if the_text.strip('\r') not in ['', '<br />',
+                                            'There are 1/1 bots that already own all of the games being checked.']:
                 item = {'op': 'cmd', 'text': the_text}
                 res_list.append(item)
                 return True
@@ -130,7 +144,8 @@ class CoreController(object):
             if re.match(pattern, the_text) is not None:
                 match = re.findall(pattern, the_text)
                 for i in match:
-                    item = {'op': 'r_AlreadyPurchased', 'bot_name': i[0], 'key': i[1], 'game_id': i[2], 'game_name': i[3]}
+                    item = {'op': 'r_AlreadyPurchased', 'bot_name': i[0], 'key': i[1], 'game_id': i[2],
+                            'game_name': i[3]}
                     res_list.append(item)
                 op = True
 
@@ -146,7 +161,8 @@ class CoreController(object):
             if re.match(pattern, the_text) is not None:
                 match = re.findall(pattern, the_text)
                 for i in match:
-                    item = {'op': 'r_DoesNotOwnRequiredApp', 'bot_name': i[0], 'key': i[1], 'game_id': i[2], 'game_name': i[3]}
+                    item = {'op': 'r_DoesNotOwnRequiredApp', 'bot_name': i[0], 'key': i[1], 'game_id': i[2],
+                            'game_name': i[3]}
                     res_list.append(item)
                 op = True
 
@@ -213,6 +229,7 @@ class CoreController(object):
             for i in redeem_list:
                 self.key_controller.update_key(i['key'], 2, i['game_id'], i['game_name'])
                 self.bot_controller.update_bot_available(i['bot_name'], 'Y')
+                self.bot_controller.add_bot_own(i['bot_name'], i['game_id'], i['game_name'])
 
             redeem_list = [i for i in self.res_list if i['op'] == 'r_DuplicateActivationCode']
             for i in redeem_list:
@@ -228,11 +245,8 @@ class CoreController(object):
 
         def _owns_executor():
             own_list = [i for i in self.res_list if i['op'] == 'owns']
-            bot_name_set = set()
             for i in own_list:
-                bot_name_set.add(i['bot_name'])
-            for bot_name in list(bot_name_set):
-                self.bot_controller.update_bot_own_list(bot_name, [i for i in own_list if i['bot_name'] == bot_name])
+                self.bot_controller.add_bot_own(i['bot_name'], i['game_id'], i['game_name'])
 
         def _cmd_executor():
             the_list = [i for i in self.res_list if i['op'] == 'cmd']

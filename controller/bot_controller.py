@@ -8,15 +8,17 @@ class BotController(object):
     def __init__(self):
         self.bot_manager = BotManager()
 
-    def update_bot_own_list(self, bot_name, own_list):
-        bot_dict = self.bot_manager.get_bot(bot_name)
-        op = False
-        if bot_dict is not None:
-            bot_dict.pop('owns')
-            bot_dict.setdefault('owns', {i['game_id']: i['game_name'] for i in own_list})
-            if self.bot_manager.update_bot(bot_name, bot_dict):
-                op = True
-        return op
+    # def update_bot_own_list(self, bot_name, own_list):
+    #     bot_dict = self.bot_manager.get_bot(bot_name)
+    #     op = False
+    #     if bot_dict is not None:
+    #         bot_dict.pop('owns')
+    #         bot_dict.setdefault('owns', {})
+    #         bot_dict['owns'].setdefault('name', {i['game_name']: i['game_id'] for i in own_list})
+    #         bot_dict['owns'].setdefault('id', {i['game_id']: i['game_name'] for i in own_list})
+    #         if self.bot_manager.update_bot(bot_name, bot_dict):
+    #             op = True
+    #     return op
 
     def get_all_bot_names(self):
         return self.bot_manager.get_all_bot_names()
@@ -24,7 +26,10 @@ class BotController(object):
     def add_bot_own(self, bot_name, game_id, game_name):
         bot_dict = self.bot_manager.get_bot(bot_name)
         bot_dict.setdefault('owns', dict())
-        bot_dict['owns'].setdefault(game_id, game_name)
+        bot_dict['owns'].setdefault('name', {})
+        bot_dict['owns'].setdefault('id', {})
+        bot_dict['owns']['name'].setdefault(game_name, game_id)
+        bot_dict['owns']['id'].setdefault(game_id, game_name)
         return self.bot_manager.update_bot(bot_name, bot_dict)
 
     def update_bot_available(self, bot_name, state):
@@ -35,12 +40,19 @@ class BotController(object):
         bot_dict['last_time'] = datetime.datetime.now().strftime(TIME_FMT)
         return self.bot_manager.update_bot(bot_name, bot_dict)
 
-    def get_bot_needs(self, game_id):
+    def get_bot_needs(self, the_type, the_text):
+        the_text = str(the_text)
         res_list = []
         for bot in self.get_all_bot_names():
-            if self.bot_manager.get_bot(bot)['owns'].get(game_id) is None:
-                res_list.append(bot)
+            if the_type == 'game_name':
+                if self.bot_manager.get_bot(bot)['owns']['name'].get(the_text) is None:
+                    res_list.append(bot)
+            elif the_type == 'game_id':
+                if self.bot_manager.get_bot(bot)['owns']['id'].get(the_text) is None:
+                    res_list.append(bot)
         return res_list
+
+
 if __name__ == '__main__':
     bc = BotController()
     pass

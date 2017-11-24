@@ -30,13 +30,27 @@ class View(object):
     def advance_redeem(self):
         self.controller.generator('redeem')
 
+    def game_needs(self, game_id):
+        self.controller.generator('need {}'.format(game_id))
+
+    def restart(self, bot_id):
+        self.controller.generator('restart {}'.format(bot_id))
+
 
 if __name__ == '__main__':
     v = View()
-    # v.addlicense('545820')
-    # v.add_keys(pyperclip.paste(), 2)
+
     # v.twofa('marysctggmale', 2)
     # v.twofa('marymalesctgg', 2)
-    # v.cmd('version')
-    v.advance_redeem()
+
+    # v.cmd('owns marysctgg *')
+    # v.update_all_owns()
+    # v.restart('marymalesctgg0')
+
+    # v.game_needs(502910)
+    # v.addlicense('545820')
+    # v.add_keys(pyperclip.paste(), 2)
+
+    # for i in range(5):
+    #     v.advance_redeem()
     pass
