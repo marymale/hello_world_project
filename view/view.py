@@ -51,8 +51,8 @@ if __name__ == '__main__':
     # v.addlicense('545820')
     # v.add_keys(pyperclip.paste(), 1)
 
-    for i in range(5):
-        v.advance_redeem()
-        if not v.controller.res_list:
-            break
+    # for i in range(5):
+    #     v.advance_redeem()
+    #     if not v.controller.res_list:
+    #         break
     pass
