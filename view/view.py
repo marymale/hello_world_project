@@ -16,6 +16,9 @@ class View(object):
     def cmd(self, command):
         self.controller.generator('cmd {}'.format(command))
 
+    def del_by_id(self, game_id):
+        self.controller.generator('del {}'.format(game_id))
+
     def update_all_owns(self):
         self.controller.generator('owns')
 
@@ -43,16 +46,17 @@ if __name__ == '__main__':
     # v.twofa('marysctggmale', 2)
     # v.twofa('marymalesctgg', 2)
 
-    # v.cmd('owns marysctgg *')
+    # v.cmd('version')
+    # v.del_by_id(134099)
     # v.update_all_owns()
     # v.restart('marymalesctgg0')
 
     # v.game_needs(535760)
     # v.addlicense('545820')
-    # v.add_keys(pyperclip.paste(), 1)
+    # v.add_keys(pyperclip.paste(), 2)
 
-    # for i in range(5):
-    #     v.advance_redeem()
-    #     if not v.controller.res_list:
-    #         break
+    for i in range(10):
+        v.advance_redeem()
+        if not v.controller.res_list:
+            break
     pass

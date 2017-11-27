@@ -41,6 +41,11 @@ class CoreController(object):
             commend = ' '.join(_blueprint.split(' ')[1:])
             return [commend]
 
+        def _del():
+            game_id = _blueprint.split(' ')[1]
+            self.key_controller.del_key_by_id(game_id)
+            return []
+
         # 暂时不需要
         def _loot():
             pass
@@ -90,7 +95,7 @@ class CoreController(object):
             return []
 
         run_dict = {'2fa': _2fa, 'owns': _owns, 'addkey': _addkey, 'addlicense': _addlicense, 'redeem': _redeem,
-                    'cmd': _cmd, 'need': _need, 'restart': _restart}
+                    'cmd': _cmd, 'need': _need, 'restart': _restart, 'del': _del}
         self.req_list = run_dict[_blueprint.split(' ')[0]]()
 
     def connector(self):
@@ -131,8 +136,12 @@ class CoreController(object):
             return op
 
         def _cmd_receiver(the_text):
-            if the_text.strip('\r') not in ['', '<br />',
-                                            'There are 1/1 bots that already own all of the games being checked.']:
+            black_list = ['',
+                          '<br />',
+                          'There are 1/1 bots that already own all of the games being checked.',
+                          r'<b>Fatal error</b>:  Maximum execution time of 30 seconds exceeded in <b>C:\AppServ\www\asf.php</b> on line <b>5</b><br />']
+
+            if the_text.strip('\r') not in black_list:
                 item = {'op': 'cmd', 'text': the_text}
                 res_list.append(item)
                 return True
@@ -175,6 +184,14 @@ class CoreController(object):
                     res_list.append(item)
                 op = True
 
+            pattern = r'^<(.+?)> Key: (.{5}-.{5}-.{5}?) \| Status: Fail / RateLimited\r$'
+            if re.match(pattern, the_text) is not None:
+                match = re.findall(pattern, the_text)
+                for i in match:
+                    item = {'op': 'r_RateLimited', 'bot_name': i[0], 'key': i[1]}
+                    res_list.append(item)
+                op = True
+
             return op
 
         def _owns_receiver(the_text):
@@ -203,59 +220,116 @@ class CoreController(object):
         self.res_list = res_list
 
     def executor(self):
-        def _2fa_executor():
-            _2fa_list = [i for i in self.res_list if i['op'] == '2fa']
-            for i in _2fa_list:
-                print '{}:{}'.format(i['bot_name'], i['2fa_id'])
-            _2fa_list = [i for i in self.res_list if i['op'] == '2fa_success']
-            for i in _2fa_list:
-                print '{}:success'.format(i['bot_name'])
+        # def _2fa_executor():
+        #     _2fa_list = [i for i in self.res_list if i['op'] == '2fa']
+        #     for i in _2fa_list:
+        #         print '{}:{}'.format(i['bot_name'], i['2fa_id'])
+        #     _2fa_list = [i for i in self.res_list if i['op'] == '2fa_success']
+        #     for i in _2fa_list:
+        #         print '{}:success'.format(i['bot_name'])
 
-        def _addlicense_executor():
-            redeem_list = [i for i in self.res_list if i['op'] == 'addlicense']
-            for i in redeem_list:
-                self.bot_controller.add_bot_own(i['bot_name'], i['game_id'], i['game_name'])
-                print 'Addlicense:{}-{}-[{}]'.format(i['bot_name'], i['game_id'], i['game_name'])
+        # def _addlicense_executor():
+        #     redeem_list = [i for i in self.res_list if i['op'] == 'addlicense']
+        #     for i in redeem_list:
+        #         self.bot_controller.add_bot_own(i['bot_name'], i['game_id'], i['game_name'])
+        #         print 'Addlicense:{}-{}-[{}]'.format(i['bot_name'], i['game_id'], i['game_name'])
 
-        def _redeem_executor():
-            redeem_list = [i for i in self.res_list if i['op'] == 'r_OK']
-            for i in redeem_list:
-                self.key_controller.del_key_by_key(i['key'])
-                self.bot_controller.add_bot_own(i['bot_name'], i['game_id'], i['game_name'])
-                self.bot_controller.update_bot_available(i['bot_name'], 'Y')
-                print 'OK:{}-{}-[{}]'.format(i['bot_name'], i['game_id'], i['game_name'])
+        # def _redeem_executor():
+        #     redeem_list = [i for i in self.res_list if i['op'] == 'r_OK']
+        #     for i in redeem_list:
+        #         self.key_controller.del_key_by_key(i['key'])
+        #         self.bot_controller.add_bot_own(i['bot_name'], i['game_id'], i['game_name'])
+        #         self.bot_controller.update_bot_available(i['bot_name'], 'Y')
+        #         print 'OK:{}-{}-[{}]'.format(i['bot_name'], i['game_id'], i['game_name'])
+        #
+        #     redeem_list = [i for i in self.res_list if i['op'] == 'r_AlreadyPurchased']
+        #     for i in redeem_list:
+        #         self.key_controller.update_key(i['key'], 2, i['game_id'], i['game_name'])
+        #         self.bot_controller.update_bot_available(i['bot_name'], 'Y')
+        #         self.bot_controller.add_bot_own(i['bot_name'], i['game_id'], i['game_name'])
+        #
+        #     redeem_list = [i for i in self.res_list if i['op'] == 'r_DuplicateActivationCode']
+        #     for i in redeem_list:
+        #         self.key_controller.del_key_by_key(i['key'])
+        #         self.bot_controller.update_bot_available(i['bot_name'], 'Y')
+        #
+        #     redeem_list = [i for i in self.res_list if i['op'] == 'r_DoesNotOwnRequiredApp']
+        #     for i in redeem_list:
+        #         level = self.key_controller.get_key_detail(i['key'])['level']
+        #         self.key_controller.update_key(i['key'], level, i['game_id'], i['game_name'])
+        #         self.bot_controller.update_bot_available(i['bot_name'], 'Y')
+        #         print 'DoesNotOwnRequiredApp:{}-{}-[{}]'.format(i['bot_name'], i['game_id'], i['game_name'])
 
-            redeem_list = [i for i in self.res_list if i['op'] == 'r_AlreadyPurchased']
-            for i in redeem_list:
-                self.key_controller.update_key(i['key'], 2, i['game_id'], i['game_name'])
-                self.bot_controller.update_bot_available(i['bot_name'], 'Y')
-                self.bot_controller.add_bot_own(i['bot_name'], i['game_id'], i['game_name'])
+        # def _owns_executor():
+        #     own_list = [i for i in self.res_list if i['op'] == 'owns']
+        #     for i in own_list:
+        #         self.bot_controller.add_bot_own(i['bot_name'], i['game_id'], i['game_name'])
 
-            redeem_list = [i for i in self.res_list if i['op'] == 'r_DuplicateActivationCode']
-            for i in redeem_list:
-                self.key_controller.del_key_by_key(i['key'])
-                self.bot_controller.update_bot_available(i['bot_name'], 'Y')
+        # def _cmd_executor():
+        #     the_list = [i for i in self.res_list if i['op'] == 'cmd']
+        #     for i in the_list:
+        #         print i['text']
 
-            redeem_list = [i for i in self.res_list if i['op'] == 'r_DoesNotOwnRequiredApp']
-            for i in redeem_list:
-                level = self.key_controller.get_key_detail(i['key'])['level']
-                self.key_controller.update_key(i['key'], level, i['game_id'], i['game_name'])
-                self.bot_controller.update_bot_available(i['bot_name'], 'Y')
-                print 'DoesNotOwnRequiredApp:{}-{}-[{}]'.format(i['bot_name'], i['game_id'], i['game_name'])
+        # exe_list = [_2fa_executor, _addlicense_executor, _owns_executor, _redeem_executor, _cmd_executor]
+        # for exe in exe_list:
+        #     exe()
 
-        def _owns_executor():
-            own_list = [i for i in self.res_list if i['op'] == 'owns']
-            for i in own_list:
-                self.bot_controller.add_bot_own(i['bot_name'], i['game_id'], i['game_name'])
+        def _executor_2fa(command):
+            print '{}:{}'.format(command['bot_name'], command['2fa_id'])
 
-        def _cmd_executor():
-            the_list = [i for i in self.res_list if i['op'] == 'cmd']
-            for i in the_list:
-                print i['text']
+        def _executor_2fa_success(command):
+            print '{}:success'.format(command['bot_name'])
 
-        exe_list = [_2fa_executor, _addlicense_executor, _owns_executor, _redeem_executor, _cmd_executor]
-        for exe in exe_list:
-            exe()
+        def _executor_addlicense(command):
+            self.bot_controller.add_bot_own(command['bot_name'], command['game_id'], command['game_name'])
+            print 'Addlicense:{}-{}-[{}]'.format(command['bot_name'], command['game_id'], command['game_name'])
+
+        def _executor_cmd(command):
+            print command['text']
+
+        def _executor_owns(command):
+            self.bot_controller.add_bot_own(command['bot_name'], command['game_id'], command['game_name'])
+
+        def _executor_redeem_ok(command):
+            self.key_controller.del_key_by_key(command['key'])
+            self.bot_controller.add_bot_own(command['bot_name'], command['game_id'], command['game_name'])
+            self.bot_controller.update_bot_available(command['bot_name'], 'Y')
+            print 'OK:{}-{}-[{}]'.format(command['bot_name'], command['game_id'], command['game_name'])
+
+        def _executor_redeem_already_purchased(command):
+            self.key_controller.update_key(command['key'], 2, command['game_id'], command['game_name'])
+            self.bot_controller.update_bot_available(command['bot_name'], 'Y')
+            self.bot_controller.add_bot_own(command['bot_name'], command['game_id'], command['game_name'])
+
+        def _executor_redeem_duplicate_activation_code(command):
+            self.key_controller.del_key_by_key(command['key'])
+            self.bot_controller.update_bot_available(command['bot_name'], 'Y')
+
+        def _executor_redeem_does_not_own_required_app(command):
+            level = self.key_controller.get_key_detail(command['key'])['level']
+            self.key_controller.update_key(command['key'], level, command['game_id'], command['game_name'])
+            self.bot_controller.update_bot_available(command['bot_name'], 'Y')
+            print 'DoesNotOwnRequiredApp:{}-{}-[{}]'.format(command['bot_name'], command['game_id'], command['game_name'])
+
+        def _executor_redeem_rate_limited(command):
+            self.bot_controller.update_bot_available(command['bot_name'], 'N')
+            print 'RateLimited:{}'.format(command['bot_name'])
+
+        exe_dict = {'2fa': _executor_2fa,
+                    '2fa_success': _executor_2fa_success,
+                    'addlicense': _executor_addlicense,
+                    'cmd': _executor_cmd,
+                    'owns': _executor_owns,
+                    'r_OK': _executor_redeem_ok,
+                    'r_AlreadyPurchased': _executor_redeem_already_purchased,
+                    'r_DuplicateActivationCode': _executor_redeem_duplicate_activation_code,
+                    'r_DoesNotOwnRequiredApp': _executor_redeem_does_not_own_required_app,
+                    'r_RateLimited': _executor_redeem_rate_limited}
+        for exe in self.res_list:
+            try:
+                exe_dict[exe['op']](exe)
+            except KeyError:
+                pass
 
     def generator(self, blueprint):
         self.transmitter(blueprint)

@@ -50,7 +50,10 @@ class KeyController(object):
     def del_key_by_key(self, key):
         return self.key_manager.del_key(key)
 
+    def del_key_by_id(self, game_id):
+        for i in self.key_manager.get_game_id(game_id):
+            self.key_manager.del_key(i['key'])
+
 if __name__ == '__main__':
     kc = KeyController()
-    # kc.update_key('F3HJN-Q2EMA-M6LE9', 1, 'null', 'null')
     pass
