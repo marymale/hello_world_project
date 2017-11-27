@@ -59,7 +59,4 @@ class BotManager(object):
 
 if __name__ == '__main__':
     bm = BotManager()
-    # for i in bm.get_all_bot_names():
-    #     bm.database[i].pop('owns')
-    #     bm.database[i].setdefault('owns', {})
     pass
