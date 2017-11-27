@@ -47,10 +47,12 @@ if __name__ == '__main__':
     # v.update_all_owns()
     # v.restart('marymalesctgg0')
 
-    # v.game_needs(502910)
+    # v.game_needs(535760)
     # v.addlicense('545820')
-    # v.add_keys(pyperclip.paste(), 2)
+    # v.add_keys(pyperclip.paste(), 1)
 
-    # for i in range(5):
-    #     v.advance_redeem()
+    for i in range(5):
+        v.advance_redeem()
+        if not v.controller.res_list:
+            break
     pass
