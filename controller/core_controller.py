@@ -240,7 +240,7 @@ class CoreController(object):
             self.key_controller.del_key_by_key(command['key'])
             self.bot_controller.add_bot_own(command['bot_name'], command['game_id'], command['game_name'])
             self.bot_controller.update_bot_available(command['bot_name'], 'Y')
-            print 'OK:{}-{}-[{}]'.format(command['bot_name'], command['game_id'], command['game_name'])
+            print 'OK:{}-{}-[{}]'.format(command['bot_name'], command['game_id'], command['game_name'].encode('utf-8'))
 
         def _executor_redeem_already_purchased(command):
             self.key_controller.update_key(command['key'], 2, command['game_id'], command['game_name'])

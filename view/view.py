@@ -1,4 +1,5 @@
 # coding=utf-8
+import time
 import pyperclip
 from controller.core_controller import CoreController
 
@@ -43,13 +44,17 @@ class View(object):
 if __name__ == '__main__':
     v = View()
 
-    # v.twofa('marysctggmale', 2)
-    # v.twofa('marymalesctgg', 2)
+    # while True:
+    #     v.twofa('marysctggmale', 1)
+    #     v.twofa('marymalesctgg', 1)
+    #     v.twofa('marysctggmale', 2)
+    #     v.twofa('marymalesctgg', 2)
+    #     time.sleep(200)
 
     # v.cmd('version')
     # v.del_by_id(134099)
     # v.update_all_owns()
-    # v.restart('marymalesctgg0')
+    # v.restart('marysctggmale')
 
     # v.game_needs(535760)
     # v.addlicense('545820')
@@ -59,4 +64,5 @@ if __name__ == '__main__':
         v.advance_redeem()
         if not v.controller.res_list:
             break
+
     pass
