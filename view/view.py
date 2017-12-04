@@ -44,12 +44,12 @@ class View(object):
 if __name__ == '__main__':
     v = View()
 
-    # while True:
-    #     v.twofa('marysctggmale', 1)
-    #     v.twofa('marymalesctgg', 1)
-    #     v.twofa('marysctggmale', 2)
-    #     v.twofa('marymalesctgg', 2)
-    #     time.sleep(200)
+    while True:
+        v.twofa('marysctggmale', 1)
+        v.twofa('marymalesctgg', 1)
+        v.twofa('marysctggmale', 2)
+        v.twofa('marymalesctgg', 2)
+        time.sleep(200)
 
     # v.cmd('version')
     # v.del_by_id(134099)
@@ -60,9 +60,9 @@ if __name__ == '__main__':
     # v.addlicense('545820')
     # v.add_keys(pyperclip.paste(), 2)
 
-    for i in range(10):
-        v.advance_redeem()
-        if not v.controller.res_list:
-            break
+    # for i in range(10):
+    #     v.advance_redeem()
+    #     if not v.controller.res_list:
+    #         break
 
     pass
