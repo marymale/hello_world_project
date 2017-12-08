@@ -56,7 +56,7 @@ if __name__ == '__main__':
     # v.update_all_owns()
     # v.restart('marysctggmale')
 
-    # v.game_needs(535760)
+    # v.game_needs(509930)
     # v.addlicense('545820')
     # v.add_keys(pyperclip.paste(), 2)
 
