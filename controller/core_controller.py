@@ -46,9 +46,12 @@ class CoreController(object):
             self.key_controller.del_key_by_id(game_id)
             return []
 
-        # 暂时不需要
         def _loot():
-            pass
+            arr = []
+            for bot_name in self.bot_controller.get_all_bot_names():
+                if bot_name not in ['marymale', 'marymalesctgg', 'marysctggmale', 'marysctgg']:
+                    arr.append('loot {}'.format(str(bot_name)))
+            return arr
 
         def _owns():
             if _blueprint != 'owns':
@@ -95,7 +98,7 @@ class CoreController(object):
             return []
 
         run_dict = {'2fa': _2fa, 'owns': _owns, 'addkey': _addkey, 'addlicense': _addlicense, 'redeem': _redeem,
-                    'cmd': _cmd, 'need': _need, 'restart': _restart, 'del': _del}
+                    'cmd': _cmd, 'need': _need, 'restart': _restart, 'del': _del, 'loot': _loot}
         self.req_list = run_dict[_blueprint.split(' ')[0]]()
 
     def connector(self):

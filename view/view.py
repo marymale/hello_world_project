@@ -40,9 +40,17 @@ class View(object):
     def restart(self, bot_id):
         self.controller.generator('restart {}'.format(bot_id))
 
+    def loot_all(self):
+        self.controller.generator('loot')
+
 
 if __name__ == '__main__':
     v = View()
+    v.cmd('version')
+
+    # v.del_by_id(134099)
+    # v.update_all_owns()
+    # v.restart('marymale')
 
     while True:
         v.twofa('marysctggmale', 1)
@@ -51,15 +59,11 @@ if __name__ == '__main__':
         v.twofa('marymalesctgg', 2)
         time.sleep(200)
 
-    # v.cmd('version')
-    # v.del_by_id(134099)
-    # v.update_all_owns()
-    # v.restart('marysctggmale')
+    # v.game_needs('4000')
+    # v.addlicense('232574')
+    # v.loot_all()
 
-    # v.game_needs(509930)
-    # v.addlicense('545820')
     # v.add_keys(pyperclip.paste(), 2)
-
     # for i in range(10):
     #     v.advance_redeem()
     #     if not v.controller.res_list:
