@@ -43,6 +43,22 @@ class View(object):
     def loot_all(self):
         self.controller.generator('loot')
 
+    def detect_daily_indie_game_discounts(self):
+        from bs import get_daily_indie_game_discounts
+        res_list, discount_list = get_daily_indie_game_discounts()
+        res_list = [i for i in res_list if i['have_card'] and sum(i['discount']) > 0]
+        buy_list = []
+        for res in res_list:
+            game_need = len(self.controller.bot_controller.get_bot_needs('game_id', res['game_id']))
+            if game_need > 0:
+                dis1 = [discount_list[i] * res['discount'][i] * 1.0 / min(discount_list[i], game_need) for i in range(len(discount_list))]
+                dis1 = min([i for i in dis1 if i > 0])
+                dis2 = min([float(i) for i in res['discount'] if i > 0])
+                if min(dis1, dis2) < 5:
+                    buy_list.append([dis1, dis2, discount_list[res['discount'].index(dis2)], res['buy_href']])
+                    print
+        # print res_list
+
 
 if __name__ == '__main__':
     v = View()
@@ -52,15 +68,16 @@ if __name__ == '__main__':
     # v.update_all_owns()
     # v.restart('marymale')
 
-    while True:
-        v.twofa('marysctggmale', 1)
-        v.twofa('marymalesctgg', 1)
-        v.twofa('marysctggmale', 2)
-        v.twofa('marymalesctgg', 2)
-        time.sleep(200)
+    # while True:
+    #     v.twofa('marysctggmale', 1)
+    #     v.twofa('marymalesctgg', 1)
+    #     v.twofa('marysctggmale', 2)
+    #     v.twofa('marymalesctgg', 2)
+    #     time.sleep(200)
 
     # v.game_needs('4000')
-    # v.addlicense('232574')
+    v.detect_daily_indie_game_discounts()
+    # v.addlicense('153186')
     # v.loot_all()
 
     # v.add_keys(pyperclip.paste(), 2)
