@@ -29,7 +29,7 @@ class BotController(object):
         return self.bot_manager.update_bot(bot_name, bot_dict)
 
     def get_bot_needs(self, the_type, the_text):
-        the_text = str(the_text)
+        the_text = str(the_text.encode('utf-8'))
         res_list = []
         for bot in self.get_all_bot_names():
             if the_type == 'game_name':
