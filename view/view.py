@@ -44,6 +44,8 @@ class View(object):
         self.controller.generator('loot')
 
     def detect_daily_indie_game_discounts(self):
+        black_list = [581690, ]
+
         from bs import get_daily_indie_game_discounts
         res_list, discount_list = get_daily_indie_game_discounts()
         res_list = [i for i in res_list if i['have_card'] and sum(i['discount']) > 0]
@@ -54,20 +56,25 @@ class View(object):
                 dis1 = [discount_list[i] * res['discount'][i] * 1.0 / min(discount_list[i], game_need) for i in range(len(discount_list))]
                 dis1 = min([i for i in dis1 if i > 0])
                 dis2 = min([float(i) for i in res['discount'] if i > 0])
-                if min(dis1, dis2) < 5:
-                    buy_list.append([dis1, dis2, discount_list[res['discount'].index(dis2)], res['buy_href']])
-                    print
-        # print res_list
+                if min(dis1, dis2) < 5 and dis1 < 10:
+                    buy_list.append([res['list_id'], game_need, int(res['game_id']), round(dis1, 2), dis2, discount_list[res['discount'].index(dis2)], res['buy_href']])
+        total = 0
+        for i, each in enumerate(buy_list):
+            if each[2] not in black_list:
+                print i, each[4] * each[5] / 100, each
+                total += each[4] * each[5] / 100
+        print total
 
 
 if __name__ == '__main__':
     v = View()
-    v.cmd('version')
+    # v.cmd('loot marymalesctgg')
+    # v.cmd('loot marysctggmale')
 
     # v.del_by_id(134099)
     # v.update_all_owns()
     # v.restart('marymale')
-
+    #
     # while True:
     #     v.twofa('marysctggmale', 1)
     #     v.twofa('marymalesctgg', 1)
@@ -76,14 +83,14 @@ if __name__ == '__main__':
     #     time.sleep(200)
 
     # v.game_needs('4000')
-    v.detect_daily_indie_game_discounts()
-    # v.addlicense('153186')
+    # v.detect_daily_indie_game_discounts()
+    # v.addlicense('243515')
     # v.loot_all()
-
-    # v.add_keys(pyperclip.paste(), 2)
-    # for i in range(10):
-    #     v.advance_redeem()
-    #     if not v.controller.res_list:
-    #         break
+    #
+    v.add_keys(pyperclip.paste(), 1)
+    for i in range(10):
+        v.advance_redeem()
+        if not v.controller.res_list:
+            break
 
     pass
